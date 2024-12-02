@@ -30,7 +30,7 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 use super::body::{BodyReader, BodyWriter};
 use super::common::*;
-use crate::protocols::http::{body_buffer::FixedBuffer, date, error_resp, HttpTask};
+use crate::protocols::http::{body_buffer::RetryBuffer, date, error_resp, HttpTask};
 use crate::protocols::{Digest, SocketAddr, Stream};
 use crate::utils::{BufRef, KVRef};
 
@@ -66,7 +66,7 @@ pub struct HttpSession {
     /// The parsed request header
     request_header: Option<Box<RequestHeader>>,
     /// An internal buffer that holds a copy of the request body up to a certain size
-    retry_buffer: Option<FixedBuffer>,
+    retry_buffer: Option<RetryBuffer>,
     /// Whether this session is an upgraded session. This flag is calculated when sending the
     /// response header to the client.
     upgraded: bool,
@@ -745,7 +745,7 @@ impl HttpSession {
 
     pub fn enable_retry_buffering(&mut self) {
         if self.retry_buffer.is_none() {
-            self.retry_buffer = Some(FixedBuffer::new(BODY_BUF_LIMIT))
+            self.retry_buffer = Some(RetryBuffer::new(BODY_BUF_LIMIT))
         }
     }
 

@@ -26,7 +26,7 @@ use log::{debug, warn};
 use pingora_http::{RequestHeader, ResponseHeader};
 use std::sync::Arc;
 
-use crate::protocols::http::body_buffer::FixedBuffer;
+use crate::protocols::http::body_buffer::RetryBuffer;
 use crate::protocols::http::date::get_cached_date;
 use crate::protocols::http::v1::client::http_req_header_to_wire;
 use crate::protocols::http::HttpTask;
@@ -96,7 +96,7 @@ pub struct HttpSession {
     // How many (application, not wire) response body bytes have been sent so far.
     body_sent: usize,
     // buffered request body for retry logic
-    retry_buffer: Option<FixedBuffer>,
+    retry_buffer: Option<RetryBuffer>,
     // digest to record underlying connection info
     digest: Arc<Digest>,
 }
@@ -409,7 +409,7 @@ impl HttpSession {
 
     pub fn enable_retry_buffering(&mut self) {
         if self.retry_buffer.is_none() {
-            self.retry_buffer = Some(FixedBuffer::new(BODY_BUF_LIMIT))
+            self.retry_buffer = Some(RetryBuffer::new(BODY_BUF_LIMIT))
         }
     }
 
