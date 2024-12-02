@@ -160,6 +160,12 @@ pub(crate) mod tempfile {
                 .lock()
                 .map_err(|e| format!("lock error: {:#?}", e))?;
 
+            if spoolfile.is_rolled() { 
+                log::trace!("spoolfile rolled over to disk"); 
+            } else { 
+                log::trace!("spoolfile still in memory");
+            };
+
             spoolfile
                 .seek(SeekFrom::Start(0))
                 .map_err(|err| format!("{:#?}", err))?;
